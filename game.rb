@@ -15,7 +15,6 @@ class Game
 
   def start_game
     @stop = false
-    @state = nil
     if user.nil?
       print "Введите свое имя: "
       name = gets.chomp
@@ -27,31 +26,19 @@ class Game
   end
 
   def round
-    puts "Ваши карты:#{user.cards}"
-    puts "Ваши очки:#{points(user.cards)}"
-    puts "Пропустить введите 1" if dealer.cards.size < 3
-    puts "Добавить карту введите 2" if user.cards.size < 3
-    puts "Открыть карты введите 3"
+    text
     c = gets.chomp.to_i
     case c
     when 1
-      dealer.cards << deck.hand_deck if points(dealer.cards) < 17
+      dealer_add_card
     when 2
       user.cards << deck.hand_deck
-      dealer.cards << deck.hand_deck if points(dealer.cards) < 17 && dealer.cards.size < 3
+      dealer_add_card
     when 3
-      puts "Ваши очки:#{points(user.cards)}"
-      puts "Карты диллера :#{dealer.cards}"
-      puts "Очки диллера:#{points(dealer.cards)}"
-      stop_round
-      state_game
+      finish
     end
-    if dealer.cards.size == 3 && user.cards.size == 3
-      puts "Ваши очки:#{points(user.cards)}"
-      puts "Карты диллера :#{dealer.cards}"
-      puts "Очки диллера:#{points(dealer.cards)}"
-      stop_round
-      state_game
+    if (dealer.cards.size == 3 || points(dealer.cards) >= 17) && user.cards.size == 3
+      finish
     end
   end
 
@@ -65,6 +52,26 @@ class Game
   end
 
   private
+
+  def text
+    puts "Ваши карты:#{user.cards}"
+    puts "Ваши очки:#{points(user.cards)}"
+    puts "Пропустить введите 1" if dealer.cards.size < 3
+    puts "Добавить карту введите 2" if user.cards.size < 3
+    puts "Открыть карты введите 3"
+  end
+
+  def dealer_add_card
+    dealer.cards << deck.hand_deck if points(dealer.cards) < 17 && dealer.cards.size < 3
+  end
+
+  def finish
+    puts "Ваши очки:#{points(user.cards)}"
+    puts "Карты диллера :#{dealer.cards}"
+    puts "Очки диллера:#{points(dealer.cards)}"
+    stop_round
+    state_game
+  end
 
   def state_game
     if (points(dealer.cards) > points(user.cards) && points(dealer.cards) < 22) || (points(dealer.cards) < 22 && points(user.cards) > 21)
